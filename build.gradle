@@ -1,0 +1,41 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion rootProject.ext.has('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 29
+    buildToolsVersion rootProject.ext.has('buildToolsVersion') ? rootProject.ext.buildToolsVersion : "29.0.2"
+
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.has('minSdkVersion') ? rootProject.ext.minSdkVersion : 15
+        targetSdkVersion rootProject.ext.has('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.has('appcompat') ? rootProject.ext.appcompat : '1.0.2'}"
+    implementation "androidx.core:core-ktx:${rootProject.ext.has('coreKtx') ? rootProject.ext.coreKtx : '1.0.2'}"
+    testImplementation "junit:junit:${rootProject.ext.has('junit') ? rootProject.ext.junit : '4.12'}"
+    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.has('androidxJunit') ? rootProject.ext.androidxJunit : '1.1.0'}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.has('espresso') ? rootProject.ext.espresso : '3.1.1'}"
+}
+
+repositories {
+    google()
+}
