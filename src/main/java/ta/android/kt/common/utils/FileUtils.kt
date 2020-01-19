@@ -4,8 +4,8 @@
 
 package ta.android.kt.common.utils
 
-import android.text.TextUtils
 import java.io.*
+
 
 /**
  * File Utils to manipulate file io operation...
@@ -186,7 +186,8 @@ object FileUtils {
      * Test target file has Extension
      * @param file to retrieve extension
      */
-    fun hasExtension(file: File): Boolean = TextUtils.isEmpty(file.extension)
+    fun hasExtension(file: File): Boolean =
+        file.extension.isNotEmpty() && file.extension.isNotBlank()
 
     /**
      * Move sourceFile to target location
@@ -200,5 +201,4 @@ object FileUtils {
     } catch (e: IOException) {
         false
     }
-
 }
