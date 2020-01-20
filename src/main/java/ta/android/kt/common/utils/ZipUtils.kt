@@ -4,10 +4,10 @@
 
 package ta.android.kt.common.utils
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 /**
  * Common Zip File Utils, use to zip, unzip, recognize and zip operation related and so on....
@@ -80,5 +80,77 @@ object ZipUtils {
         true
     } catch (e: IOException) {
         false
+    }
+
+    // The zip single file logic...
+    @Throws(IOException::class)
+    private fun zip(srcFile: File, zipOut: ZipOutputStream, rootPath: String) {
+        (rootPath + (if (rootPath.trim().isEmpty()) "" else File.separator) + srcFile.name).run {
+            if (srcFile.isDirectory) {
+                srcFile.listFiles()?.apply {
+                    for (file in this) {
+                        zip(file, zipOut, rootPath)
+                    }
+                }
+            } else {
+                zipOut.putNextEntry(ZipEntry(rootPath))
+                StreamUtils.in2OutStream(
+                    FileInputStream(srcFile),
+                    zipOut,
+                    StreamUtils.CLOSE_TYPE_IN
+                )
+                zipOut.flush()
+                zipOut.closeEntry()
+            }
+        }
+    }
+
+    /**
+     * compress a collection of files to zipFile
+     * @param fileList list of files to compress
+     * @param zipFile target to zipped file
+     * @param comment the extra comment to write inside zip file
+     */
+    fun zip(fileList: Collection<File>, zipFile: File, comment: String?) {
+        try {
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { out ->
+                for (resFile in fileList) {
+                    zip(resFile, out, "")
+                }
+                if (comment != null) {
+                    out.setComment(comment)
+                }
+            }
+        } catch (e: IOException) {
+        }
+    }
+
+    /**
+     * compress a collection of files to zipFile
+     * @param fileList list of files to compress
+     * @param zipFile target to zipped file
+     */
+    fun zip(fileList: Collection<File>, zipFile: File) {
+        zip(fileList, zipFile, null)
+    }
+
+    /**
+     * extract entries name from zip file.
+     * @param zipFile target zipFile
+     * @return list of entries name of zip file.
+     */
+    fun extractEntriesNames(zipFile: File): ArrayList<String> = ArrayList<String>().apply {
+        try {
+            ZipFile(zipFile).use { zf ->
+                zf.entries().run {
+                    while (this.hasMoreElements()) {
+                        this.nextElement().name.takeIf {
+                            isValidPath(it)
+                        }?.run { this@apply.add(this) }
+                    }
+                }
+            }
+        } catch (e: IOException) {
+        }
     }
 }
